@@ -165,8 +165,11 @@ func (s *Site) render() error {
 		if d.isMarkdown(s.Config) {
 			rendered = convertMarkdown(rendered, s.Config)
 		} else if (SassConverter{}).matches(d.ext) {
-			rendered = (SassConverter{}).convert(rendered)
-			s.warnings = append(s.warnings, (SassConverter{}).warning(d.relPath))
+			css, err := newSassConverter(s).convert(rendered, d.ext)
+			if err != nil {
+				return err
+			}
+			rendered = css
 		}
 		d.content = rendered
 		pageMap["content"] = rendered

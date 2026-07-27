@@ -103,9 +103,6 @@ func cmdBuild(p *parsed, stdout, stderr io.Writer) int {
 		}
 		return 1
 	}
-	for _, w := range site.warnings {
-		fmt.Fprintf(stderr, "Warning: %s\n", w)
-	}
 	if !quiet {
 		fmt.Fprintf(stdout, "                    done in %.3f seconds.\n", time.Since(start).Seconds())
 		fmt.Fprintf(stdout, " Auto-regeneration: disabled. Use --watch to enable.\n")

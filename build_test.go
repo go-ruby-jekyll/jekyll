@@ -104,14 +104,14 @@ func TestUnpublished(t *testing.T) {
 	}
 }
 
-func TestSassPassthrough(t *testing.T) {
+func TestSassCompile(t *testing.T) {
 	src := t.TempDir()
+	dst := t.TempDir()
 	writeTest(t, src, "_config.yml", "title: T\n")
-	writeTest(t, src, "style.scss", "---\n---\n.a { color: red; }\n")
-	s := buildInto(t, src, map[string]any{})
-	if len(s.warnings) == 0 {
-		t.Fatal("expected a Sass warning")
-	}
+	// A partial in _sass, pulled in via @use from a front-matter stylesheet.
+	writeTest(t, src, "_sass/_vars.scss", "$c: red;\n")
+	writeTest(t, src, "style.scss", "---\n---\n@use \"vars\";\n.a { color: vars.$c;\n .b { font-weight: bold; } }\n")
+	s := buildIntoDst(t, src, dst, map[string]any{})
 	// URL maps to .css
 	found := false
 	for _, d := range s.pages {
@@ -121,6 +121,39 @@ func TestSassPassthrough(t *testing.T) {
 	}
 	if !found {
 		t.Fatal("scss should map to .css url")
+	}
+	// Compiled CSS is written and reflects nesting + the imported variable.
+	got, err := os.ReadFile(filepath.Join(dst, "style.css"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := ".a {\n  color: red;\n}\n.a .b {\n  font-weight: bold;\n}"
+	if string(got) != want {
+		t.Fatalf("compiled css mismatch\n got: %q\nwant: %q", got, want)
+	}
+}
+
+func TestSassCompiledStyleAndError(t *testing.T) {
+	// Compressed style honoured from the sass config.
+	src := t.TempDir()
+	dst := t.TempDir()
+	writeTest(t, src, "_config.yml", "sass:\n  style: compressed\n")
+	writeTest(t, src, "style.scss", "---\n---\n.a { color: red; }\n")
+	buildIntoDst(t, src, dst, map[string]any{})
+	got, _ := os.ReadFile(filepath.Join(dst, "style.css"))
+	if string(got) != ".a{color:red}" {
+		t.Fatalf("compressed css mismatch: %q", got)
+	}
+
+	// A malformed stylesheet fails the build (jekyll raises SyntaxError).
+	src2 := t.TempDir()
+	writeTest(t, src2, "_config.yml", "title: T\n")
+	writeTest(t, src2, "bad.scss", "---\n---\n.a { color: ;\n")
+	cfg, _ := LoadConfig(src2, nil)
+	cfg["source"] = src2
+	cfg["destination"] = t.TempDir()
+	if err := NewSite(cfg).Build(); err == nil {
+		t.Fatal("malformed scss should fail the build")
 	}
 }
 

@@ -1,0 +1,13 @@
+---
+---
+@use "base";
+
+.card {
+  @include base.card(base.$spacing * 2);
+  color: base.$brand-color;
+
+  .title {
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+}

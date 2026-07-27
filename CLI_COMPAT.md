@@ -138,7 +138,7 @@ reproduces the **listing** and prints an equivalent "not installed" message.
 
 | Area | Status | Reason |
 |------|--------|--------|
-| SCSS/Sass conversion (`.scss`/`.sass`) | **deferred** | `go-ruby-sass` does not exist yet; `SassConverter` is a named pluggable stub that copies source through and emits a loud warning. |
+| Sass source maps (`sass.sourcemap`) | not emitted | go-scss does not yet produce source maps, so the `.css.map` file + `sourceMappingURL` comment jekyll-sass-converter writes under its default `sourcemap: always` are omitted. SCSS/Sass compilation itself is implemented (via go-ruby-sass); CSS byte-matches the gem on the common surface (`sourcemap: never` for exact parity). |
 | `--lsi` related posts | not implemented | needs a latent-semantic-indexing model; flag parsed, ignored. |
 | `--incremental` | not implemented | full rebuild is always performed; flag parsed, ignored. |
 | `--livereload` websocket | not implemented | flag parsed; server serves without the live-reload injection. |
