@@ -1,0 +1,6 @@
+# Golden test fixtures must be byte-exact across platforms — never EOL-convert
+# them (Windows checkout would otherwise turn committed LF into CRLF and break
+# the differential `_site`/help goldens). Everything else normalizes to LF.
+testdata/** -text
+* text=auto eol=lf
+*.go text eol=lf
