@@ -6,19 +6,12 @@ package jekyll
 
 import (
 	"bytes"
-	"net"
+	"errors"
 	"net/http"
 	"os"
 	"path/filepath"
 	"testing"
 )
-
-func skipIfRoot(t *testing.T) {
-	t.Helper()
-	if os.Geteuid() == 0 {
-		t.Skip("permission-based error path is not observable as root")
-	}
-}
 
 func TestApplyLayoutsRenderError(t *testing.T) {
 	src := t.TempDir()
@@ -57,18 +50,13 @@ func TestCopyFileMkdirError(t *testing.T) {
 }
 
 func TestCleanRemoveAllError(t *testing.T) {
-	skipIfRoot(t)
 	dst := t.TempDir()
-	writeTest(t, dst, "keepdir/child.html", "x")
-	// make dst read-only so RemoveAll of its entry fails
-	if err := os.Chmod(dst, 0o555); err != nil {
-		t.Fatal(err)
-	}
-	defer os.Chmod(dst, 0o755)
+	writeTest(t, dst, "child.html", "x")
+	defer stubRemoveAll(errors.New("remove boom"))()
 	s := NewSite(Config{"source": t.TempDir(), "destination": dst})
 	s.Dest = dst
 	if err := s.clean(); err == nil {
-		t.Fatal("clean should fail when dest is read-only")
+		t.Fatal("clean should surface a RemoveAll error")
 	}
 }
 
@@ -83,22 +71,20 @@ func TestMainBuildHelpFlag(t *testing.T) {
 }
 
 func TestCmdServeCleanErrorAndHost(t *testing.T) {
-	// clean error: dest is a file
-	base := t.TempDir()
-	fileDest := filepath.Join(base, "f")
-	os.WriteFile(fileDest, []byte("x"), 0o644)
+	var out, errb bytes.Buffer
+	// clean error via an injected ReadDir failure (portable across OSes).
+	restore := stubReadDir(errors.New("readdir boom"))
 	src := t.TempDir()
 	writeTest(t, src, "_config.yml", "title: T\n")
-	var out, errb bytes.Buffer
-	if code := Main([]string{"serve", "-s", src, "-d", fileDest, "-P", "0"}, &out, &errb); code != 1 {
+	if code := Main([]string{"serve", "-s", src, "-d", t.TempDir(), "-P", "0"}, &out, &errb); code != 1 {
 		t.Fatalf("serve clean error exit %d", code)
 	}
-	// host override path
+	restore()
+	// host override path with a non-blocking injected serve loop.
 	src2 := t.TempDir()
 	writeTest(t, src2, "_config.yml", "title: T\n")
 	writeTest(t, src2, "index.md", "---\ntitle: H\n---\nx\n")
-	serveHook = func(srv *http.Server, _ net.Listener) { srv.Close() }
-	defer func() { serveHook = nil }()
+	defer stubServeLoop(http.ErrServerClosed)()
 	if code := Main([]string{"serve", "-s", src2, "-d", t.TempDir(), "-H", "127.0.0.1", "-P", "0"}, &out, &errb); code != 0 {
 		t.Fatalf("serve with host exit %d", code)
 	}
@@ -283,15 +269,12 @@ func TestSkipDirExcluded(t *testing.T) {
 
 func TestReadDataReadError(t *testing.T) {
 	src := t.TempDir()
-	dataDir := filepath.Join(src, "_data")
-	os.MkdirAll(dataDir, 0o755)
-	// A broken symlink named *.yml: WalkDir sees a file, ReadFile fails.
-	if err := os.Symlink(filepath.Join(src, "nonexistent-target"), filepath.Join(dataDir, "broken.yml")); err != nil {
-		t.Skipf("symlinks unavailable: %v", err)
-	}
+	writeTest(t, src, "_data/x.yml", "k: v\n")
+	// Inject a ReadFile failure so the error branch fires on every OS.
+	defer stubReadFile(errors.New("read boom"))()
 	s := &Site{Config: Config{"data_dir": "_data"}, Source: src, data: map[string]any{}}
 	if err := s.readData(); err == nil {
-		t.Fatal("readData should fail on an unreadable file")
+		t.Fatal("readData should surface a ReadFile error")
 	}
 }
 

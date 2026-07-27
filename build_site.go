@@ -285,10 +285,20 @@ func (s *Site) keepFilePatterns() []string {
 	return out
 }
 
+// osReadDir and osRemoveAll are indirections over the filesystem so the error
+// branches of clean can be exercised deterministically on every OS via a test
+// seam (a read-only directory or a file-as-destination behaves differently
+// across platforms, so injection is the only portable way to reach them).
+var (
+	osReadDir   = os.ReadDir
+	osRemoveAll = os.RemoveAll
+	osReadFile  = os.ReadFile
+)
+
 // clean removes the destination, preserving keep_files entries.
 func (s *Site) clean() error {
 	keep := s.keepFilePatterns()
-	entries, err := os.ReadDir(s.Dest)
+	entries, err := osReadDir(s.Dest)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil
@@ -299,7 +309,7 @@ func (s *Site) clean() error {
 		if kept(e.Name(), keep) {
 			continue
 		}
-		if err := os.RemoveAll(filepath.Join(s.Dest, e.Name())); err != nil {
+		if err := osRemoveAll(filepath.Join(s.Dest, e.Name())); err != nil {
 			return err
 		}
 	}

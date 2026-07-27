@@ -6,6 +6,7 @@ package jekyll
 
 import (
 	"bytes"
+	"errors"
 	"net"
 	"net/http"
 	"os"
@@ -15,6 +16,39 @@ import (
 	"time"
 )
 
+// stubServeLoop replaces the blocking accept loop with one that closes the
+// listener and returns the given error, so serveSite never blocks. It returns a
+// restore func. This drives the serve paths deterministically on every OS.
+func stubServeLoop(err error) func() {
+	prev := serveLoop
+	serveLoop = func(_ *http.Server, ln net.Listener) error {
+		ln.Close()
+		return err
+	}
+	return func() { serveLoop = prev }
+}
+
+// stubReadDir / stubRemoveAll inject a filesystem error into clean() so its
+// error branches are hit identically on every OS (a read-only directory or a
+// file-as-destination is not portable). Each returns a restore func.
+func stubReadDir(err error) func() {
+	prev := osReadDir
+	osReadDir = func(string) ([]os.DirEntry, error) { return nil, err }
+	return func() { osReadDir = prev }
+}
+
+func stubRemoveAll(err error) func() {
+	prev := osRemoveAll
+	osRemoveAll = func(string) error { return err }
+	return func() { osRemoveAll = prev }
+}
+
+func stubReadFile(err error) func() {
+	prev := osReadFile
+	osReadFile = func(string) ([]byte, error) { return nil, err }
+	return func() { osReadFile = prev }
+}
+
 func TestServeBlockingPaths(t *testing.T) {
 	dst := t.TempDir()
 	writeTest(t, dst, "index.html", "hi")
@@ -22,25 +56,20 @@ func TestServeBlockingPaths(t *testing.T) {
 	site.Dest = dst
 	p := &parsed{vals: map[string]string{}, bools: map[string]bool{}}
 
-	// Success path: hook closes the server -> Serve returns ErrServerClosed -> 0.
-	serveHook = func(srv *http.Server, _ net.Listener) {
-		time.Sleep(5 * time.Millisecond)
-		srv.Close()
-	}
+	// Success path: the serve loop returns a graceful shutdown -> exit 0.
+	restore := stubServeLoop(http.ErrServerClosed)
 	var out, errb bytes.Buffer
 	if code := serveSite(site, "127.0.0.1", 0, p, &out, &errb); code != 0 {
 		t.Fatalf("blocking serve success exit %d", code)
 	}
+	restore()
 
-	// Error path: hook closes the listener -> Serve returns a non-graceful error -> 1.
-	serveHook = func(_ *http.Server, ln net.Listener) {
-		time.Sleep(5 * time.Millisecond)
-		ln.Close()
-	}
+	// Error path: the serve loop returns a non-graceful error -> exit 1.
+	restore = stubServeLoop(errors.New("serve boom"))
+	defer restore()
 	if code := serveSite(site, "127.0.0.1", 0, p, &out, &errb); code != 1 {
 		t.Fatalf("blocking serve error exit %d", code)
 	}
-	serveHook = nil
 }
 
 func TestCmdServeViaMainBlocking(t *testing.T) {
@@ -48,8 +77,7 @@ func TestCmdServeViaMainBlocking(t *testing.T) {
 	dst := t.TempDir()
 	writeTest(t, src, "_config.yml", "title: T\n")
 	writeTest(t, src, "index.md", "---\ntitle: H\n---\nx\n")
-	serveHook = func(srv *http.Server, _ net.Listener) { srv.Close() }
-	defer func() { serveHook = nil }()
+	defer stubServeLoop(http.ErrServerClosed)()
 	var out, errb bytes.Buffer
 	if code := Main([]string{"serve", "-s", src, "-d", dst, "-P", "0"}, &out, &errb); code != 0 {
 		t.Fatalf("serve via Main exit %d: %s", code, errb.String())
@@ -303,13 +331,10 @@ func TestWriteAndBuildDestErrors(t *testing.T) {
 }
 
 func TestCleanReadDirError(t *testing.T) {
-	base := t.TempDir()
-	fileAsDest := filepath.Join(base, "f")
-	os.WriteFile(fileAsDest, []byte("x"), 0o644)
-	s := NewSite(Config{"source": base, "destination": fileAsDest})
-	s.Dest = fileAsDest
+	defer stubReadDir(errors.New("readdir boom"))()
+	s := NewSite(Config{"source": t.TempDir(), "destination": t.TempDir()})
 	if err := s.clean(); err == nil {
-		t.Fatal("clean on a file dest should error")
+		t.Fatal("clean should surface a ReadDir error")
 	}
 }
 
@@ -325,26 +350,23 @@ func TestCmdBuildTraceAndErrors(t *testing.T) {
 	if !strings.Contains(errb.String(), "Error") {
 		t.Fatal("expected error output")
 	}
-	// clean error: dest is a file
-	base := t.TempDir()
-	fileDest := filepath.Join(base, "f")
-	os.WriteFile(fileDest, []byte("x"), 0o644)
+	// clean error: injected ReadDir failure (portable across OSes)
+	restore := stubReadDir(errors.New("readdir boom"))
+	defer restore()
 	src2 := t.TempDir()
 	writeTest(t, src2, "_config.yml", "title: T\n")
 	errb.Reset()
-	if code := Main([]string{"build", "-s", src2, "-d", fileDest}, &out, &errb); code != 1 {
+	if code := Main([]string{"build", "-s", src2, "-d", t.TempDir()}, &out, &errb); code != 1 {
 		t.Fatalf("clean error should exit 1, got %d", code)
 	}
 }
 
 func TestCmdCleanError(t *testing.T) {
-	base := t.TempDir()
-	fileDest := filepath.Join(base, "f")
-	os.WriteFile(fileDest, []byte("x"), 0o644)
+	defer stubReadDir(errors.New("readdir boom"))()
 	src := t.TempDir()
 	writeTest(t, src, "_config.yml", "title: T\n")
 	var out, errb bytes.Buffer
-	if code := Main([]string{"clean", "-s", src, "-d", fileDest}, &out, &errb); code != 1 {
+	if code := Main([]string{"clean", "-s", src, "-d", t.TempDir()}, &out, &errb); code != 1 {
 		t.Fatalf("clean error exit %d", code)
 	}
 }

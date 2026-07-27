@@ -221,7 +221,7 @@ func (s *Site) readData() error {
 		if ext != ".yml" && ext != ".yaml" {
 			return nil
 		}
-		raw, err := os.ReadFile(path)
+		raw, err := osReadFile(path)
 		if err != nil {
 			return err
 		}

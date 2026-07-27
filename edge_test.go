@@ -5,6 +5,7 @@
 package jekyll
 
 import (
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -133,6 +134,20 @@ func TestNoDirListingOpenError(t *testing.T) {
 	f3.Close()
 }
 
+func TestRealServeLoopClosedListener(t *testing.T) {
+	// Exercises the production serve loop deterministically on every OS: serving
+	// on an already-closed listener returns immediately with an error, so there
+	// is no blocking and no platform-specific shutdown timing.
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	ln.Close()
+	if err := realServeLoop(&http.Server{}, ln); err == nil {
+		t.Fatal("serving a closed listener should return an error")
+	}
+}
+
 func TestServeDetachRealPort(t *testing.T) {
 	dst := t.TempDir()
 	writeTest(t, dst, "index.html", "hi")
@@ -140,11 +155,12 @@ func TestServeDetachRealPort(t *testing.T) {
 	site := NewSite(cfg)
 	site.Dest = dst
 	p := &parsed{vals: map[string]string{}, bools: map[string]bool{"detach": true}}
+	// The detached serve loop is stubbed so no real server outlives the test.
+	defer stubServeLoop(http.ErrServerClosed)()
 	var out, errb strings.Builder
 	if code := serveSite(site, "127.0.0.1", 0, p, &out, &errb); code != 0 {
 		t.Fatalf("detach serve exit %d", code)
 	}
-	time.Sleep(10 * time.Millisecond)
 }
 
 func TestLookupVar(t *testing.T) {

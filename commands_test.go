@@ -166,16 +166,16 @@ func TestCmdServeDetach(t *testing.T) {
 	dst := t.TempDir()
 	writeTest(t, src, "_config.yml", "title: T\nbaseurl: /blog\n")
 	writeTest(t, src, "index.md", "---\ntitle: Home\n---\n# Hi\n")
+	// The detached serve loop is stubbed so no real server outlives the test.
+	defer stubServeLoop(http.ErrServerClosed)()
 	var out, errb bytes.Buffer
 	code := Main([]string{"serve", "-s", src, "-d", dst, "-P", "0", "-B"}, &out, &errb)
-	// port 0 fails to advertise a fixed port but binding still succeeds; detach returns 0.
 	if code != 0 {
 		t.Fatalf("serve -B exit %d: %s", code, errb.String())
 	}
 }
 
 func TestServeSiteBindError(t *testing.T) {
-	// Bind twice to force an address-in-use error on the second server.
 	src := t.TempDir()
 	writeTest(t, src, "_config.yml", "title: T\n")
 	cfg, _ := LoadConfig(src, nil)
@@ -184,10 +184,8 @@ func TestServeSiteBindError(t *testing.T) {
 	site := NewSite(cfg)
 	_ = site.Build()
 
-	ln, _ := http.DefaultTransport, 0
-	_ = ln
 	p := &parsed{vals: map[string]string{}, bools: map[string]bool{}}
-	// invalid host to force listen error
+	// An invalid host forces net.Listen to fail on every OS (no seam needed).
 	var out, errb bytes.Buffer
 	if code := serveSite(site, "256.256.256.256", 4000, p, &out, &errb); code != 1 {
 		t.Fatalf("bad host should exit 1, got %d", code)

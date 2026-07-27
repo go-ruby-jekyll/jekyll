@@ -71,22 +71,24 @@ func serveSite(site *Site, host string, port int, p *parsed, stdout, stderr io.W
 	srv := &http.Server{Handler: handler}
 	if p.bools["detach"] {
 		fmt.Fprintf(stdout, "  Server detached, listening on %s\n", addr)
-		go srv.Serve(ln)
+		go serveLoop(srv, ln)
 		return 0
 	}
 	fmt.Fprintf(stdout, "  Server running... press ctrl-c to stop.\n")
-	// serveHook is a test seam: it runs concurrently with the blocking Serve
-	// call so a test can shut the server down deterministically.
-	if serveHook != nil {
-		go serveHook(srv, ln)
-	}
-	if err := srv.Serve(ln); err != nil && err != http.ErrServerClosed {
+	if err := serveLoop(srv, ln); err != nil && err != http.ErrServerClosed {
 		fmt.Fprintf(stderr, "Error: %v\n", err)
 		return 1
 	}
 	return 0
 }
 
-// serveHook, when set, is invoked in a goroutine just before the blocking
-// Serve call. Production leaves it nil.
-var serveHook func(*http.Server, net.Listener)
+// serveLoop is the blocking accept/serve loop, factored behind a package var so
+// tests can drive serveSite's startup, host, detach and error paths
+// deterministically without ever depending on a real indefinite ListenAndServe
+// (whose shutdown semantics differ across platforms). Production runs the real
+// loop, which returns http.ErrServerClosed on a graceful shutdown.
+var serveLoop = realServeLoop
+
+func realServeLoop(srv *http.Server, ln net.Listener) error {
+	return srv.Serve(ln)
+}
