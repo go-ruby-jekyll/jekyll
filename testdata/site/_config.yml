@@ -1,0 +1,14 @@
+title: Diff Test Site
+description: A controlled site for differential testing.
+baseurl: "/blog"
+url: "https://example.com"
+author: Jane Doe
+permalink: /:categories/:year/:month/:day/:title:output_ext
+collections:
+  authors:
+    output: true
+    permalink: /authors/:path/
+markdown: kramdown
+exclude:
+  - secret.txt
+plugins: []

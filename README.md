@@ -1,0 +1,101 @@
+# jekyll — go-ruby-jekyll
+
+[![License](https://img.shields.io/badge/license-BSD--3--Clause-blue)](LICENSE)
+[![Go](https://img.shields.io/badge/go-1.26.4%2B-00ADD8)](https://go.dev/dl/)
+[![Coverage](https://img.shields.io/badge/coverage-100%25-1a7f37)](#tests--coverage)
+
+**A pure-Go (no cgo) `jekyll` command-line tool** whose command and option
+surface is a drop-in match for Ruby [Jekyll](https://jekyllrb.com) 4.4.1, and
+whose build pipeline reproduces a real site's `_site/` output — verified
+**byte-for-byte** against the reference implementation.
+
+It builds on the pure-Go Jekyll pillars:
+
+- [go-ruby-liquid/liquid](https://github.com/go-ruby-liquid/liquid) — Liquid templating
+- [go-ruby-kramdown/kramdown](https://github.com/go-ruby-kramdown/kramdown) — Markdown
+- [go-ruby-rouge/rouge](https://github.com/go-ruby-rouge/rouge) — syntax highlighting
+
+No Ruby runtime is required to build or run it. The resulting binary is static
+and CGO-free, and cross-compiles to all six supported 64-bit targets
+(amd64/arm64/riscv64/loong64/ppc64le/s390x).
+
+## Install
+
+```sh
+go install github.com/go-ruby-jekyll/jekyll/cmd/jekyll@latest
+```
+
+## Usage
+
+```sh
+jekyll new my-site        # scaffold a self-contained site
+jekyll build              # build ./_site
+jekyll serve              # build and serve on http://127.0.0.1:4000
+jekyll clean              # remove the generated site
+jekyll doctor             # sanity-check configuration
+```
+
+The full command tree and every option/flag — with exact long/short forms,
+defaults and descriptions — is captured in [CLI_COMPAT.md](CLI_COMPAT.md), which
+is transcribed verbatim from `jekyll help` and used as the differential oracle.
+
+## What is implemented
+
+The core build pipeline matches Jekyll's behaviour:
+
+- `_config.yml` load + deep-merge + CLI overrides
+- YAML front matter (`---` blocks), `--strict_front_matter`
+- `_posts`, `_drafts` (`--drafts`), `--future`, `--unpublished`, `--limit_posts`
+- Collections (`_config.yml` `collections:`), `output`, per-collection `permalink`
+- `_layouts` with layout chaining, `_includes` (incl. `{% include x.html k=v %}`)
+- Liquid rendering with Jekyll's filters (`relative_url`, `absolute_url`,
+  `date_to_string`/`_xmlschema`/`_rfc822`, `slugify`, `xml_escape`, `jsonify`,
+  `markdownify`, `number_of_words`, `array_to_sentence_string`, …) and tags
+  (`include`, `highlight`, `link`, `post_url`)
+- Kramdown Markdown → HTML with Jekyll's Rouge code-block/inline wrappers
+- Permalinks (named styles + `:placeholder` templates), `site`/`page` variables,
+  `_data`, static files, `exclude`/underscore/dotfile rules
+- `serve` (WEBrick-equivalent HTTP with baseurl prefix), `new`, `new-theme`,
+  `clean`, `doctor`
+
+## Substrate gaps found (reported upstream)
+
+- **go-ruby-liquid had no filter/tag registration API.** Jekyll's filters must be
+  evaluable *inside* `{% for %}` loops, so they cannot be pre-expanded by a
+  wrapper. This is fixed additively by
+  [go-ruby-liquid#6](https://github.com/go-ruby-liquid/liquid/pull/6)
+  (`liquid.WithFilter` / `WithFilters`), which this module depends on. Custom
+  **tags** still have no engine hook, so `include`/`highlight`/`link`/`post_url`
+  are expanded by a preprocessing layer here (works at page/layout scope; an
+  `{% include %}` that references a loop variable is a residual — see below).
+- **go-ruby-kramdown collapses the blank lines around a raw HTML block.** Ruby
+  kramdown keeps a leading newline and a trailing blank line; go-ruby-kramdown
+  does not. The only observed effect is the surrounding whitespace of a
+  `{% highlight %}` block placed *inside a Markdown document* — the highlighted
+  figure content itself is byte-identical. (`{% highlight %}` in an `.html` page
+  is byte-identical.)
+
+## Honestly-deferred surface (parsed, not yet behavioural)
+
+| Area | Status |
+|------|--------|
+| SCSS/Sass (`.scss`/`.sass`) | **deferred** — `go-ruby-sass` does not exist yet; the `SassConverter` is a named pluggable stub that copies source through and warns. |
+| `--lsi` related posts | flag parsed, ignored (needs a latent-semantic-indexing model). |
+| `--incremental` | flag parsed, ignored (a full rebuild is always performed). |
+| `--livereload` websocket | flag parsed; server serves without the live-reload injection. |
+| `--watch` / `--profile` | parsed; watcher and Liquid profiler not implemented. |
+| Ruby `_plugins/*.rb` | not executed (pure-Go, CGO=0). `--plugins` dir is still recorded. |
+| `{% include %}` referencing a loop variable | residual of the missing tag-registration hook (page/layout-scope includes work). |
+| Array/hash Jekyll filters (`where_exp`, `group_by`) | best-effort; string-valued filters are exact. |
+
+## Tests & coverage
+
+`testdata/site/` is a controlled Jekyll site; `testdata/expected/` is its
+`_site/` as produced by **Ruby Jekyll 4.4.1**. The test suite builds the source
+with this tool and asserts the output is byte-for-byte identical, plus unit
+tests for the CLI surface, config, front matter, permalinks, filters and
+converters. Coverage target: 100% including error branches.
+
+## License
+
+BSD-3-Clause. Copyright (c) the go-ruby-jekyll/jekyll authors.

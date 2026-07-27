@@ -1,0 +1,17 @@
+---
+layout: default
+title: Home
+---
+<h1>{{ page.title }}</h1>
+<p>{{ site.description }}</p>
+<ul>
+{% for post in site.posts %}
+  <li><a href="{{ post.url | relative_url }}">{{ post.title }}</a> — {{ post.date | date: "%Y-%m-%d" }}</li>
+{% endfor %}
+</ul>
+<p>Authors:</p>
+<ul>
+{% for a in site.authors %}
+  <li>{{ a.name }} ({{ a.url }})</li>
+{% endfor %}
+</ul>

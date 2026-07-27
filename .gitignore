@@ -1,0 +1,8 @@
+/jekyll
+/gojekyll
+cover.out
+coverage.txt
+*.test
+_site/
+.jekyll-cache/
+.jekyll-metadata

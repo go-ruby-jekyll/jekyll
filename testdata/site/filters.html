@@ -1,0 +1,11 @@
+---
+layout: default
+title: Filters
+---
+<p>slug: {{ "Hello World! Foo" | slugify }}</p>
+<p>xml: {{ "a<b>&c" | xml_escape }}</p>
+<p>words: {{ "one two three" | number_of_words }}</p>
+<p>dts: {{ page.date | default: site.time | date_to_string }}</p>
+<p>rel: {{ "/x.html" | relative_url }}</p>
+<p>abs: {{ "/x.html" | absolute_url }}</p>
+{% include note.html type="warn" text="Careful here" %}

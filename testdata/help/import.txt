@@ -1,0 +1,16 @@
+jekyll import
+
+Usage:
+
+  jekyll import
+
+Options:
+        -s, --source [DIR]  Source directory (defaults to ./)
+        -d, --destination [DIR]  Destination directory (defaults to ./_site)
+            --safe         Safe mode (defaults to false)
+        -p, --plugins PLUGINS_DIR1[,PLUGINS_DIR2[,...]]  Plugins directory (defaults to ./_plugins)
+            --layouts DIR  Layouts directory (defaults to ./_layouts)
+            --profile      Generate a Liquid rendering profile
+        -h, --help         Show this message
+        -v, --version      Print the name and version
+        -t, --trace        Show the full backtrace when an error occurs 
