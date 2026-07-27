@@ -1,0 +1,7 @@
+$brand-color: #0d9488;
+$spacing: 8px;
+
+@mixin card($pad) {
+  padding: $pad;
+  border: 1px solid $brand-color;
+}

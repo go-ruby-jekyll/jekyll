@@ -6,6 +6,10 @@ github.com/go-ruby-regexp/regexp v0.0.0-20260701043846-fa3d6604e1ee h1:ctauEAdAq
 github.com/go-ruby-regexp/regexp v0.0.0-20260701043846-fa3d6604e1ee/go.mod h1:+0nK2X+aCPMO91bPMM/DT1OFUIzFQeoTPGkkOR3kd84=
 github.com/go-ruby-rouge/rouge v0.0.0-20260717073527-64efd2552805 h1:zg+tAmMUFbiS6owzVGV6AYpKGSyabNCKmfvUq4UIkK4=
 github.com/go-ruby-rouge/rouge v0.0.0-20260717073527-64efd2552805/go.mod h1:PJHlTuP01g0s+3cVfuQgCztiLcUD2intYD2bZTEMOZM=
+github.com/go-ruby-sass/sass v0.0.0-20260727152834-0a0e6d3c2540 h1:pPogf82hje/6XDPpOzgJOuUDsnsTlhYbSfkGiTk+tDk=
+github.com/go-ruby-sass/sass v0.0.0-20260727152834-0a0e6d3c2540/go.mod h1:HZJiisemQZQSasmqvJXYQsDT6UFsBQf9npTp8w1x44o=
+github.com/go-scss/scss v0.0.0-20260727152331-b7fc31f3fb34 h1:WjaaZFHGDZCgAHsIUakcTFUu5T5TmrkE8l+nrEJa+xY=
+github.com/go-scss/scss v0.0.0-20260727152331-b7fc31f3fb34/go.mod h1:TcSRuwTSVas0+vXMRFdq4RiAmlaK+z5FQh1/6+4fWTo=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=

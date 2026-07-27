@@ -43,15 +43,32 @@ func TestCmdBuildConfigError(t *testing.T) {
 	}
 }
 
-func TestCmdBuildSassWarning(t *testing.T) {
+func TestCmdBuildSassCompiles(t *testing.T) {
 	src := t.TempDir()
 	dst := t.TempDir()
 	writeTest(t, src, "_config.yml", "title: T\n")
-	writeTest(t, src, "a.scss", "---\n---\n.x{}\n")
+	writeTest(t, src, "a.scss", "---\n---\n.x { .y { color: red; } }\n")
 	var out, errb bytes.Buffer
-	Main([]string{"build", "-s", src, "-d", dst}, &out, &errb)
-	if !bytes.Contains(errb.Bytes(), []byte("Sass/SCSS is not compiled")) {
-		t.Fatalf("expected sass warning, got %q", errb.String())
+	if code := Main([]string{"build", "-s", src, "-d", dst}, &out, &errb); code != 0 {
+		t.Fatalf("build should succeed, got %d: %q", code, errb.String())
+	}
+	css, err := os.ReadFile(filepath.Join(dst, "a.css"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(css) != ".x .y {\n  color: red;\n}" {
+		t.Fatalf("compiled scss mismatch: %q", css)
+	}
+}
+
+func TestCmdBuildSassError(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+	writeTest(t, src, "_config.yml", "title: T\n")
+	writeTest(t, src, "bad.scss", "---\n---\n.x { color: ;\n")
+	var out, errb bytes.Buffer
+	if code := Main([]string{"build", "-s", src, "-d", dst}, &out, &errb); code != 1 {
+		t.Fatalf("malformed scss should exit 1, got %d", code)
 	}
 }
 

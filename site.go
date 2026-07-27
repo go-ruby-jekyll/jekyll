@@ -43,7 +43,6 @@ type Site struct {
 	postURLByName map[string]string
 	sitePayload   map[string]any
 	renderList    []*Document
-	warnings      []string
 }
 
 // NewSite builds a Site from a resolved configuration.

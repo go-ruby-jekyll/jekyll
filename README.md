@@ -52,6 +52,11 @@ The core build pipeline matches Jekyll's behaviour:
   `date_to_string`/`_xmlschema`/`_rfc822`, `slugify`, `xml_escape`, `jsonify`,
   `markdownify`, `number_of_words`, `array_to_sentence_string`, …) and tags
   (`include`, `highlight`, `link`, `post_url`)
+- SCSS/Sass (`.scss`/`.sass`) compiled through
+  [go-ruby-sass](https://github.com/go-ruby-sass/sass) (pure-Go, CGO=0,
+  dart-sass-compatible over [go-scss](https://github.com/go-scss/scss)), matching
+  jekyll-sass-converter: the `_sass` load path (`sass.sass_dir`), `sass.style`,
+  `sass.load_paths`, and front-matter-triggered conversion to `.css`
 - Kramdown Markdown → HTML with Jekyll's Rouge code-block/inline wrappers
 - Permalinks (named styles + `:placeholder` templates), `site`/`page` variables,
   `_data`, static files, `exclude`/underscore/dotfile rules
@@ -79,7 +84,7 @@ The core build pipeline matches Jekyll's behaviour:
 
 | Area | Status |
 |------|--------|
-| SCSS/Sass (`.scss`/`.sass`) | **deferred** — `go-ruby-sass` does not exist yet; the `SassConverter` is a named pluggable stub that copies source through and warns. |
+| Sass source maps (`sass.sourcemap`) | not emitted — go-scss does not yet produce source maps, so the `.css.map` file and the `/*# sourceMappingURL */` comment that jekyll-sass-converter writes under its default `sourcemap: always` are omitted. CSS output byte-matches the gem on the common surface; set `sass.sourcemap: never` for exact parity. Other go-scss residuals (advanced `@extend` unification, media-query conflict pruning, exotic `sass:meta`/`sass:selector`) are inherited. |
 | `--lsi` related posts | flag parsed, ignored (needs a latent-semantic-indexing model). |
 | `--incremental` | flag parsed, ignored (a full rebuild is always performed). |
 | `--livereload` websocket | flag parsed; server serves without the live-reload injection. |
