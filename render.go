@@ -50,18 +50,25 @@ func (r *renderer) renderDepth(src string, assigns map[string]any, depth int) (s
 	return tpl.Render(assigns)
 }
 
-var includeRe = regexp.MustCompile(`(?s)\{%\s*include\s+(\S+?)((?:\s+[^%]*?)?)\s*%\}`)
+// includeRe matches {% include file [k=v ...] %}, including Liquid's
+// whitespace-control trim markers {%- ... -%} (minima puts them on every
+// include). Groups: 1=leading whitespace, 2=left trim marker, 3=file,
+// 4=params, 5=right trim marker, 6=trailing whitespace.
+var includeRe = regexp.MustCompile(`(?s)(\s*)\{%(-?)\s*include\s+(\S+?)((?:\s+[^%]*?)?)\s*(-?)%\}(\s*)`)
 
 // expandIncludes replaces {% include file [k=v ...] %} tags with the rendered
 // contents of the include file, scoped with an `include` map of the parameters.
+// A leading `{%-` trims whitespace before the tag; a trailing `-%}` trims
+// whitespace after it, mirroring Liquid's whitespace control.
 func (r *renderer) expandIncludes(src string, assigns map[string]any, depth int, perr *error) string {
 	return includeRe.ReplaceAllStringFunc(src, func(m string) string {
 		if *perr != nil {
 			return ""
 		}
 		sub := includeRe.FindStringSubmatch(m)
-		name := strings.Trim(sub[1], `"'`)
-		params := parseIncludeParams(sub[2], assigns)
+		lead, ltrim, rtrim, trail := sub[1], sub[2], sub[5], sub[6]
+		name := strings.Trim(sub[3], `"'`)
+		params := parseIncludeParams(sub[4], assigns)
 		body, err := r.readInclude(name)
 		if err != nil {
 			*perr = err
@@ -77,7 +84,15 @@ func (r *renderer) expandIncludes(src string, assigns map[string]any, depth int,
 			*perr = err
 			return ""
 		}
-		return out
+		var b strings.Builder
+		if ltrim != "-" {
+			b.WriteString(lead)
+		}
+		b.WriteString(out)
+		if rtrim != "-" {
+			b.WriteString(trail)
+		}
+		return b.String()
 	})
 }
 
