@@ -93,7 +93,11 @@ func (d *Document) toLiquid() map[string]any {
 	if d.hasDate {
 		m["date"] = d.date
 	}
-	if _, ok := m["title"]; !ok {
+	// Jekyll derives a title from the slug only for collection documents (posts
+	// and custom collections, via Jekyll::Document); regular pages (Jekyll::Page)
+	// are left untitled so an untitled page renders an empty <title>/heading and
+	// is skipped by title-filtered navigation.
+	if _, ok := m["title"]; !ok && d.collection != "" {
 		m["title"] = titleize(d.slug)
 	}
 	return m
