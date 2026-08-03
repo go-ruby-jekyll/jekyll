@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 // TestDifferentialGolden is the core parity test: it builds testdata/site and
@@ -23,6 +24,10 @@ func TestDifferentialGolden(t *testing.T) {
 	cfg["source"] = "testdata/site"
 	cfg["destination"] = dst
 	site := NewSite(cfg)
+	// Freeze site.time so the golden (which renders `site.time | date_to_string`)
+	// is deterministic; Ruby Jekyll's site.time is Time.now, captured here as the
+	// moment the fixtures were generated.
+	site.Time = time.Date(2026, 7, 27, 12, 0, 0, 0, time.UTC)
 	if err := site.Build(); err != nil {
 		t.Fatal(err)
 	}
