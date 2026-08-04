@@ -68,6 +68,11 @@ The core build pipeline matches Jekyll's behaviour:
   `_data`, static files, `exclude`/underscore/dotfile rules
 - `serve` (WEBrick-equivalent HTTP with baseurl prefix), `new`, `new-theme`,
   `clean`, `doctor`
+- **Theme gems** (`theme:` in `_config.yml`): a gem laid out in the standard
+  structure (`_layouts`, `_includes`, `_sass`, `assets`) is resolved from the
+  Ruby gem path and layered *under* the site's own files, so a site file always
+  overrides its theme equivalent — exactly like `Jekyll::Theme`. The gem is
+  located by scanning `GEM_HOME`/`GEM_PATH` and `gem environment gempath`.
 
 ## Substrate gaps found (reported upstream)
 
@@ -98,6 +103,7 @@ The core build pipeline matches Jekyll's behaviour:
 | Ruby `_plugins/*.rb` | not executed (pure-Go, CGO=0). `--plugins` dir is still recorded. |
 | `{% include %}` referencing a loop variable | residual of the missing tag-registration hook (page/layout-scope includes work). |
 | Array/hash Jekyll filters (`where_exp`, `group_by`) | best-effort; string-valued filters are exact. |
+| Theme gems with a non-standard layout | only the standard `_layouts`/`_includes`/`_sass`/`assets` structure is resolved; a theme that ships its files elsewhere (or via a custom `Jekyll::Theme` subclass) is not. |
 
 ## Tests & coverage
 

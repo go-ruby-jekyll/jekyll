@@ -216,21 +216,28 @@ func (s *Site) loadLayout(name string) (string, map[string]any, error) {
 	if dir == "" {
 		dir = "_layouts"
 	}
-	for _, ext := range []string{".html", ".md", ".markdown", ""} {
-		p := filepath.Join(s.Source, dir, name+ext)
-		raw, err := os.ReadFile(p)
-		if err != nil {
-			continue
+	// Site _layouts first, then the theme's _layouts (site overrides theme).
+	roots := []string{filepath.Join(s.Source, dir)}
+	if td := s.themeDir("_layouts"); td != "" {
+		roots = append(roots, td)
+	}
+	for _, root := range roots {
+		for _, ext := range []string{".html", ".md", ".markdown", ""} {
+			p := filepath.Join(root, name+ext)
+			raw, err := os.ReadFile(p)
+			if err != nil {
+				continue
+			}
+			data, body, _, ferr := parseFrontMatter(raw)
+			if ferr != nil {
+				data = map[string]any{}
+				body = string(raw)
+			}
+			if data == nil {
+				data = map[string]any{}
+			}
+			return body, data, nil
 		}
-		data, body, _, ferr := parseFrontMatter(raw)
-		if ferr != nil {
-			data = map[string]any{}
-			body = string(raw)
-		}
-		if data == nil {
-			data = map[string]any{}
-		}
-		return body, data, nil
 	}
 	return "", nil, &parseErr{"Layout '" + name + "' requested but not found."}
 }
