@@ -353,7 +353,7 @@ func (s *Site) readPageOrStatic(path, rel string) error {
 	if pm, ok := d.data["permalink"].(string); ok {
 		d.url = applyPermalink(pm, d, rel)
 	} else {
-		d.url = "/" + strings.TrimSuffix(rel, d.ext) + d.outputExt
+		d.url = defaultPageURL(rel, d.ext, d.outputExt)
 	}
 	s.pages = append(s.pages, d)
 	s.urlByPath[rel] = d.url
