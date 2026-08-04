@@ -53,6 +53,11 @@ func newSassConverter(s *Site) SassConverter {
 		c.loadPaths = append(c.loadPaths, c.abs(p))
 	}
 	c.loadPaths = append(c.loadPaths, c.abs(sassDir))
+	// The theme's _sass directory is searched after the site's own, so a site
+	// partial overrides the theme's equivalent (matching Jekyll::Theme).
+	if td := s.themeDir("_sass"); td != "" {
+		c.loadPaths = append(c.loadPaths, td)
+	}
 	return c
 }
 

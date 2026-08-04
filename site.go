@@ -29,6 +29,11 @@ type Site struct {
 	Dest   string
 	Time   time.Time
 
+	// themeRoot is the absolute path of the resolved theme gem (via `theme:` in
+	// _config.yml), or "" when no theme is configured/found. Theme _layouts,
+	// _includes, _sass and assets are layered under the site's own files.
+	themeRoot string
+
 	filters map[string]liquid.Filter
 	r       *renderer
 
@@ -62,6 +67,9 @@ func NewSite(cfg Config) *Site {
 		docMaps:       map[*Document]map[string]any{},
 		urlByPath:     map[string]string{},
 		postURLByName: map[string]string{},
+	}
+	if name := cfg.str("theme"); name != "" {
+		s.themeRoot = resolveTheme(name).Root
 	}
 	s.filters = jekyllFilters(cfg)
 	s.r = &renderer{site: s}
@@ -116,6 +124,13 @@ func (s *Site) Read() error {
 	}
 	drafts := s.Config.boolOpt("show_drafts")
 
+	if err := s.walkSource(labels, drafts); err != nil {
+		return err
+	}
+	return s.readThemeAssets()
+}
+
+func (s *Site) walkSource(labels map[string]bool, drafts bool) error {
 	return filepath.WalkDir(s.Source, func(path string, dEntry os.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -148,6 +163,46 @@ func (s *Site) Read() error {
 			return s.readPageOrStatic(path, rel)
 		}
 	})
+}
+
+// readThemeAssets layers the theme gem's `assets/` tree under the site: every
+// theme asset is read as a page (when it carries front matter) or static file,
+// unless the site already provides a file at the same relative path (site files
+// override theme files). Only `assets/` produces output; the theme's _layouts,
+// _includes and _sass are consumed on demand during rendering.
+func (s *Site) readThemeAssets() error {
+	root := s.themeDir("assets")
+	if root == "" {
+		return nil
+	}
+	if _, err := os.Stat(root); err != nil {
+		return nil
+	}
+	return filepath.WalkDir(root, func(path string, d os.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return err
+		}
+		sub, _ := filepath.Rel(root, path)
+		rel := filepath.ToSlash(filepath.Join("assets", sub))
+		if s.hasSourceFile(rel) {
+			return nil
+		}
+		return s.readPageOrStatic(path, rel)
+	})
+}
+
+// hasSourceFile reports whether the site already declared a document or static
+// file at rel (so a theme file at the same path must not shadow it).
+func (s *Site) hasSourceFile(rel string) bool {
+	if _, ok := s.urlByPath[rel]; ok {
+		return true
+	}
+	for _, f := range s.staticFiles {
+		if f.relPath == rel {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *Site) skipDir(rel string) bool {

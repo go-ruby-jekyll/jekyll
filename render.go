@@ -101,12 +101,17 @@ func (r *renderer) readInclude(name string) (string, error) {
 	if dir == "" {
 		dir = "_includes"
 	}
-	p := filepath.Join(r.site.Source, dir, name)
-	b, err := os.ReadFile(p)
-	if err != nil {
-		return "", fmt.Errorf("Included file '%s' not found", name)
+	// Site _includes first, then the theme's _includes (site overrides theme).
+	roots := []string{filepath.Join(r.site.Source, dir)}
+	if td := r.site.themeDir("_includes"); td != "" {
+		roots = append(roots, td)
 	}
-	return string(b), nil
+	for _, root := range roots {
+		if b, err := os.ReadFile(filepath.Join(root, name)); err == nil {
+			return string(b), nil
+		}
+	}
+	return "", fmt.Errorf("Included file '%s' not found", name)
 }
 
 var includeParamRe = regexp.MustCompile(`(\w+)=("[^"]*"|'[^']*'|\S+)`)
