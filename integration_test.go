@@ -21,12 +21,12 @@ import (
 // output to Ruby Jekyll 4.4.1 + minima 2.5.2 + jekyll-feed 0.17.0 +
 // jekyll-seo-tag 2.9.0.
 //
-// about and post are asserted byte-identical to reference Jekyll. index.html is
-// asserted content-identical (whitespace normalised) for its sole residual: its
-// page body is empty, and go-ruby-kramdown renders empty Markdown as "" where
-// Ruby kramdown yields "\n", so a single newline is absent inside home.html's
-// {{ content }} slot. This is a Markdown-converter residual, not a Liquid one —
-// go-ruby-liquid's {%- -%} / {{- -}} whitespace control is byte-exact against
+// about, post AND index.html are all asserted byte-identical to reference Jekyll:
+// this is the full pure-Go Jekyll byte-parity capstone. index.html's former sole
+// residual — an empty home page body, which go-ruby-kramdown once rendered as ""
+// where Ruby kramdown yields "\n", dropping a newline inside home.html's
+// {{ content }} slot — is closed now that empty Markdown renders as "\n" like the
+// gem. go-ruby-liquid's {%- -%} / {{- -}} whitespace control is byte-exact against
 // the liquid gem, including minima's skipped-conditional layout shape. feed.xml
 // and assets/main.css are asserted byte-identical (feed modulo the site-time
 // <updated>; CSS modulo the sourcemap trailer go-scss does not emit).
@@ -60,23 +60,19 @@ func TestIntegrationMinima(t *testing.T) {
 		"intro/demo/2024/01/02/hello.html",
 	})
 
-	// HTML pages: content-identical (whitespace normalised).
-	// about and post are byte-identical to reference Jekyll. index is asserted
-	// content-identical only: its single residual is an empty page body, which
-	// go-ruby-kramdown renders as "" where Ruby kramdown renders "\n" (see the
-	// note above htmlCanon).
+	// HTML pages: byte-identical to reference Jekyll. index.html is now included in
+	// the strict comparison — its former empty-body newline residual is closed, so
+	// the full home+about+post triad is byte-exact (full pure-Go Jekyll byte parity).
 	for out, golden := range map[string]string{
 		"about/index.html":                 "about.html",
 		"intro/demo/2024/01/02/hello.html": "post.html",
+		"index.html":                       "index.html",
 	} {
 		got := readOut(t, dst, out)
 		wantHTML := goldenText(t, golden)
 		if got != wantHTML {
 			t.Errorf("%s is not byte-identical to reference Jekyll\n got: %q\nwant: %q", out, got, wantHTML)
 		}
-	}
-	if got, want := htmlCanon(readOut(t, dst, "index.html")), htmlCanon(goldenText(t, "index.html")); got != want {
-		t.Errorf("index.html content differs from reference Jekyll\n got: %s\nwant: %s", got, want)
 	}
 
 	// index.html must carry the byte-exact SEO block and feed autodiscovery link.
@@ -147,22 +143,6 @@ func normalizeFeedTime(s string) string {
 		done = true
 		return "<updated>@</updated>"
 	})
-}
-
-var (
-	interTagWSRe = regexp.MustCompile(`>\s+<`)
-	wsRunRe      = regexp.MustCompile(`\s+`)
-)
-
-// htmlCanon canonicalises HTML for a content comparison that ignores
-// insignificant inter-tag whitespace: whitespace runs between tags collapse to
-// nothing and other whitespace runs to a single space. This masks index.html's
-// sole residual (go-ruby-kramdown rendering an empty page body as "" where Ruby
-// kramdown yields "\n") while still surfacing any real difference in tags,
-// attributes or text.
-func htmlCanon(s string) string {
-	s = interTagWSRe.ReplaceAllString(s, "><")
-	return strings.TrimSpace(wsRunRe.ReplaceAllString(s, " "))
 }
 
 var sourcemapRe = regexp.MustCompile(`(?s)\s*/\*# sourceMappingURL=[^*]*\*/\s*$`)
