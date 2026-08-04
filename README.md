@@ -121,6 +121,7 @@ The core build pipeline matches Jekyll's behaviour:
 | `{% include %}` referencing a loop variable | residual of the missing tag-registration hook (page/layout-scope includes work). |
 | Array/hash Jekyll filters (`where_exp`, `group_by`) | best-effort; string-valued filters are exact. |
 | Theme gems with a non-standard layout | only the standard `_layouts`/`_includes`/`_sass`/`assets` structure is resolved; a theme that ships its files elsewhere (or via a custom `Jekyll::Theme` subclass) is not. |
+| Liquid `{%- -%}` whitespace-control edge case | go-ruby-liquid collapses one newline around an empty trimmed conditional differently from Ruby Liquid. The only observed effect on a `jekyll new` + minima build is a single insignificant newline in `home.html` (and a trailing blank line) — pages are otherwise byte-identical. |
 
 ## Tests & coverage
 
@@ -129,6 +130,14 @@ The core build pipeline matches Jekyll's behaviour:
 with this tool and asserts the output is byte-for-byte identical, plus unit
 tests for the CLI surface, config, front matter, permalinks, filters and
 converters. Coverage target: 100% including error branches.
+
+An end-to-end test (`integration_test.go`) additionally builds a real
+`jekyll new`-style site on the **minima** theme (vendored under
+`testdata/gemroot/`) and compares every page to Ruby Jekyll 4.4.1 with minima
+2.5.2, jekyll-feed 0.17.0 and jekyll-seo-tag 2.9.0: `feed.xml` and `assets/main.css`
+are byte-identical (feed modulo its site-time `<updated>`; CSS modulo the
+source-map trailer), and the HTML pages are content-identical up to the single
+Liquid whitespace residual noted above.
 
 ## License
 

@@ -1,0 +1,9 @@
+---
+layout: post
+title: "Hello World"
+date: 2024-01-02 09:30:00 +0100
+categories: intro demo
+---
+This is the **first** paragraph of the post.
+
+A second paragraph with a [link](https://example.com).

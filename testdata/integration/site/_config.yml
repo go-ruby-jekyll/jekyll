@@ -1,0 +1,10 @@
+title: Test Blog
+email: test@example.com
+description: A test blog for integration.
+baseurl: ""
+url: ""
+twitter_username: testhandle
+github_username: testorg
+theme: minima
+plugins:
+  - jekyll-feed
