@@ -37,10 +37,12 @@ type seoTag struct {
 var seoArgRe = regexp.MustCompile(`(?i)(title|canonical)\s*=\s*false`)
 
 // expandSeo replaces {% seo [args] %} with the rendered SEO block, using the
-// page currently in scope.
+// page currently in scope. It honours Liquid whitespace-control markers
+// ({%- ... -%}), which minima's head.html uses.
 func (r *renderer) expandSeo(src string, assigns map[string]any) string {
 	return seoTagRe.ReplaceAllStringFunc(src, func(m string) string {
-		args := seoTagRe.FindStringSubmatch(m)[1]
+		sub := seoTagRe.FindStringSubmatch(m)
+		lead, ltrim, args, rtrim, trail := sub[1], sub[2], sub[3], sub[4], sub[5]
 		page, _ := assigns["page"].(map[string]any)
 		st := seoTag{
 			site:          r.site.Config,
@@ -56,11 +58,25 @@ func (r *renderer) expandSeo(src string, assigns map[string]any) string {
 				st.showCanonical = false
 			}
 		}
-		return st.render()
+		return trimWrap(lead, ltrim, st.render(), rtrim, trail)
 	})
 }
 
-var seoTagRe = regexp.MustCompile(`\{%\s*seo\b([^%]*)%\}`)
+var seoTagRe = regexp.MustCompile(`(?s)(\s*)\{%(-?)\s*seo\b([^%]*?)(-?)%\}(\s*)`)
+
+// trimWrap re-attaches (or, per the -%}/{%- markers, drops) the whitespace that
+// surrounded a pre-expanded tag, mirroring Liquid's whitespace control.
+func trimWrap(lead, ltrim, body, rtrim, trail string) string {
+	var b strings.Builder
+	if ltrim != "-" {
+		b.WriteString(lead)
+	}
+	b.WriteString(body)
+	if rtrim != "-" {
+		b.WriteString(trail)
+	}
+	return b.String()
+}
 
 // render builds the full SEO <head> block.
 func (t seoTag) render() string {

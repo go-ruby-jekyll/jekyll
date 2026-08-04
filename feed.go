@@ -333,13 +333,15 @@ func normalizeWS(s string) string {
 	return strings.Join(strings.Fields(s), " ")
 }
 
-var feedMetaRe = regexp.MustCompile(`\{%\s*feed_meta\s*%\}`)
+var feedMetaRe = regexp.MustCompile(`(?s)(\s*)\{%(-?)\s*feed_meta\s*(-?)%\}(\s*)`)
 
 // expandFeedMeta replaces {% feed_meta %} (jekyll-feed's tag) with the Atom
-// autodiscovery <link>, matching JekyllFeed::MetaTag.
+// autodiscovery <link>, matching JekyllFeed::MetaTag. Liquid whitespace-control
+// markers ({%- ... -%}) are honoured.
 func (r *renderer) expandFeedMeta(src string) string {
-	return feedMetaRe.ReplaceAllStringFunc(src, func(string) string {
-		return r.site.feedMetaLink()
+	return feedMetaRe.ReplaceAllStringFunc(src, func(m string) string {
+		sub := feedMetaRe.FindStringSubmatch(m)
+		return trimWrap(sub[1], sub[2], r.site.feedMetaLink(), sub[3], sub[4])
 	})
 }
 

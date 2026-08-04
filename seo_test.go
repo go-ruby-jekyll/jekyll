@@ -193,6 +193,21 @@ func TestSeoDescriptionFromExcerptAndTitleCategory(t *testing.T) {
 	}
 }
 
+func TestSeoAndFeedMetaTrimMarkers(t *testing.T) {
+	// minima's head.html uses {%- seo -%} / {%- feed_meta -%}: the markers must
+	// strip the surrounding whitespace around the expanded output.
+	r := &renderer{site: NewSite(Config{"title": "S", "url": "https://x.com", "plugins": []any{"jekyll-feed"}, "source": ".", "destination": "."})}
+	assigns := map[string]any{"page": map[string]any{"url": "/"}}
+	seo := r.expandSeo("A\n  {%- seo -%}\n  B", assigns)
+	if !strings.HasPrefix(seo, "A<!-- Begin") || !strings.HasSuffix(seo, "-->\nB") {
+		t.Fatalf("seo trim markers not applied: %q", seo[:12]+"..."+seo[len(seo)-12:])
+	}
+	fm := r.expandFeedMeta("A\n  {%- feed_meta -%}\n  B")
+	if fm != `A<link type="application/atom+xml" rel="alternate" href="https://x.com/feed.xml" title="S" />B` {
+		t.Fatalf("feed_meta trim markers not applied: %q", fm)
+	}
+}
+
 func TestLiquidTruthy(t *testing.T) {
 	if liquidTruthy(nil) || liquidTruthy(false) {
 		t.Fatal("nil/false are falsy")
