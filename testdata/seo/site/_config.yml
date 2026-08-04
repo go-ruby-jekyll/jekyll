@@ -1,0 +1,11 @@
+title: Your awesome title
+email: your-email@example.com
+description: >-
+  Write an awesome description for your new site here. You can edit this
+  line in _config.yml.
+baseurl: ""
+url: ""
+twitter_username: jekyllrb
+github_username: jekyll
+plugins:
+  - jekyll-seo-tag

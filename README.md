@@ -79,6 +79,12 @@ The core build pipeline matches Jekyll's behaviour:
   `feed.path`, `feed.posts_limit` and `feed.excerpt_only`. The `{% feed_meta %}`
   autodiscovery tag is supported. (Per-collection / per-category / per-tag feed
   *files* are a named gap.)
+- **jekyll-seo-tag** (`{% seo %}`): emits the SEO / OpenGraph / Twitter-card /
+  JSON-LD `<head>` block byte-for-byte with the plugin — title/description/
+  canonical, `og:*`, `twitter:*`, author/image/site verifications, and a
+  key-sorted JSON-LD document (WebSite / WebPage / BlogPosting), honouring
+  `{% seo title=false %}` / `canonical=false`. Liquid pagination fields
+  (`paginator.*`) are the only omitted inputs (a named gap).
 - **Theme gems** (`theme:` in `_config.yml`): a gem laid out in the standard
   structure (`_layouts`, `_includes`, `_sass`, `assets`) is resolved from the
   Ruby gem path and layered *under* the site's own files, so a site file always
