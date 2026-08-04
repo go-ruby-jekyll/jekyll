@@ -43,6 +43,7 @@ func (r *renderer) renderDepth(src string, assigns map[string]any, depth int) (s
 	}
 	src = r.expandHighlights(src)
 	src = r.expandLinks(src, assigns)
+	src = r.expandFeedMeta(src)
 	tpl, err := liquid.Parse(src, liquid.WithFilters(r.site.filters), liquid.WithErrorMode(liquid.Lax))
 	if err != nil {
 		return "", err

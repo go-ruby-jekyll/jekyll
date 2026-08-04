@@ -68,6 +68,17 @@ The core build pipeline matches Jekyll's behaviour:
   `_data`, static files, `exclude`/underscore/dotfile rules
 - `serve` (WEBrick-equivalent HTTP with baseurl prefix), `new`, `new-theme`,
   `clean`, `doctor`
+- **Post/collection excerpts** (`page.excerpt`): the content up to
+  `excerpt_separator` (default `"\n\n"`, overridable per-document), with trailing
+  Markdown link-reference definitions carried over, rendered through the same
+  Liquid + Markdown pipeline as the body — matching `Jekyll::Excerpt`
+- **jekyll-feed** (enabled via `plugins:` or a theme's gem dependency): generates
+  an Atom `/feed.xml` byte-for-byte with the plugin's template — feed
+  title/subtitle/author, and per-post title/link/dates/id/content/author
+  (resolved through `site.data.authors`)/categories/tags/summary/image, honouring
+  `feed.path`, `feed.posts_limit` and `feed.excerpt_only`. The `{% feed_meta %}`
+  autodiscovery tag is supported. (Per-collection / per-category / per-tag feed
+  *files* are a named gap.)
 - **Theme gems** (`theme:` in `_config.yml`): a gem laid out in the standard
   structure (`_layouts`, `_includes`, `_sass`, `assets`) is resolved from the
   Ruby gem path and layered *under* the site's own files, so a site file always

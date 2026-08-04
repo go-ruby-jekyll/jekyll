@@ -48,6 +48,15 @@ type Site struct {
 	postURLByName map[string]string
 	sitePayload   map[string]any
 	renderList    []*Document
+	generated     []generatedFile
+	plugins       map[string]bool
+}
+
+// generatedFile is an output produced by a plugin generator (e.g. jekyll-feed's
+// feed.xml) rather than by a source document.
+type generatedFile struct {
+	url     string
+	content string
 }
 
 // NewSite builds a Site from a resolved configuration.
@@ -71,6 +80,7 @@ func NewSite(cfg Config) *Site {
 	if name := cfg.str("theme"); name != "" {
 		s.themeRoot = resolveTheme(name).Root
 	}
+	s.plugins = s.activePlugins()
 	s.filters = jekyllFilters(cfg)
 	s.r = &renderer{site: s}
 	return s
