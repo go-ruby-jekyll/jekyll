@@ -68,6 +68,38 @@ func applyPermalink(tmpl string, d *Document, collectionRelPath string) string {
 	return out
 }
 
+// defaultPageURL computes the site-absolute URL for a page that has no
+// front-matter permalink, matching Jekyll's default. A page whose output
+// basename is index.html is served at its directory URL — the "index.html" is
+// stripped — so index.html -> "/" and a/b/index.html -> "/a/b/". Every other
+// page keeps its path with the output extension, e.g. about.md -> "/about.html".
+func defaultPageURL(rel, ext, outputExt string) string {
+	base := strings.TrimSuffix(rel, ext) + outputExt
+	if outputExt == ".html" && strings.TrimSuffix(pathBase(base), outputExt) == "index" {
+		dir := pathDir(base)
+		if dir == "." || dir == "" {
+			return "/"
+		}
+		return "/" + dir + "/"
+	}
+	return "/" + base
+}
+
+// pathBase and pathDir operate on forward-slash URL/rel paths (not OS paths).
+func pathBase(p string) string {
+	if i := strings.LastIndex(p, "/"); i >= 0 {
+		return p[i+1:]
+	}
+	return p
+}
+
+func pathDir(p string) string {
+	if i := strings.LastIndex(p, "/"); i >= 0 {
+		return p[:i]
+	}
+	return "."
+}
+
 // urlToOutputPath converts a site-absolute URL to a destination-relative file
 // path. A trailing slash yields index.html; a bare directory URL likewise.
 func urlToOutputPath(url string) string {
