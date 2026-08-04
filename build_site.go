@@ -21,6 +21,7 @@ func (s *Site) Build() error {
 	if err := s.render(); err != nil {
 		return err
 	}
+	s.runGenerators()
 	return s.write()
 }
 
@@ -157,7 +158,7 @@ func (s *Site) render() error {
 
 	for _, d := range all {
 		pageMap := s.docMap(d)
-		assigns := map[string]any{"site": s.sitePayload, "page": pageMap}
+		assigns := s.baseAssigns(pageMap)
 		rendered, err := s.r.render(d.body, assigns)
 		if err != nil {
 			return err
@@ -173,6 +174,13 @@ func (s *Site) render() error {
 		}
 		d.content = rendered
 		pageMap["content"] = rendered
+		if d.collection != "" {
+			ex, err := s.excerptFor(d, pageMap)
+			if err != nil {
+				return err
+			}
+			pageMap["excerpt"] = ex
+		}
 	}
 	for _, d := range all {
 		out, err := s.applyLayouts(d)
@@ -196,12 +204,9 @@ func (s *Site) applyLayouts(d *Document) (string, error) {
 		if err != nil {
 			return content, err
 		}
-		assigns := map[string]any{
-			"site":    s.sitePayload,
-			"page":    pageMap,
-			"content": content,
-			"layout":  ldata,
-		}
+		assigns := s.baseAssigns(pageMap)
+		assigns["content"] = content
+		assigns["layout"] = ldata
 		content, err = s.r.render(lsrc, assigns)
 		if err != nil {
 			return content, err
@@ -251,6 +256,11 @@ func (s *Site) write() error {
 	}
 	for _, f := range s.staticFiles {
 		if err := copyFile(f.absPath, filepath.Join(s.Dest, f.relPath)); err != nil {
+			return err
+		}
+	}
+	for _, g := range s.generated {
+		if err := writeFile(filepath.Join(s.Dest, urlToOutputPath(g.url)), []byte(g.content)); err != nil {
 			return err
 		}
 	}
