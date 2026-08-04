@@ -1,7 +1,7 @@
 github.com/go-ruby-kramdown/kramdown v0.0.0-20260717070109-6152f7f5a931 h1:QFVj15fRXEUPN9MnV585J/uwlgPkDPemR83zM3QRq3M=
 github.com/go-ruby-kramdown/kramdown v0.0.0-20260717070109-6152f7f5a931/go.mod h1:lpczu9a88TnJ1mD0vLvXcL9MJL+2y8ZI5QeP2HmEqjA=
-github.com/go-ruby-liquid/liquid v0.0.0-20260803123637-f2fd0dc7162b h1:zmH8Yw30OYl+aoRZfcKtuXXX5u8kdfDaoKFdUWHRf/E=
-github.com/go-ruby-liquid/liquid v0.0.0-20260803123637-f2fd0dc7162b/go.mod h1:VY1lx+1SYMHiGhxr0R5RIxRXwpq0vkIpQiHLrKYiX8U=
+github.com/go-ruby-liquid/liquid v0.0.0-20260804201521-ef124255c935 h1:iW0l9m7v3b0kHDqhT5xAotJmGgDZX2Mmy8a4cMAArOM=
+github.com/go-ruby-liquid/liquid v0.0.0-20260804201521-ef124255c935/go.mod h1:VY1lx+1SYMHiGhxr0R5RIxRXwpq0vkIpQiHLrKYiX8U=
 github.com/go-ruby-regexp/regexp v0.0.0-20260701043846-fa3d6604e1ee h1:ctauEAdAq129WCrU+dndYcOjNlo1Y94vWNBtgXp1heE=
 github.com/go-ruby-regexp/regexp v0.0.0-20260701043846-fa3d6604e1ee/go.mod h1:+0nK2X+aCPMO91bPMM/DT1OFUIzFQeoTPGkkOR3kd84=
 github.com/go-ruby-rouge/rouge v0.0.0-20260717073527-64efd2552805 h1:zg+tAmMUFbiS6owzVGV6AYpKGSyabNCKmfvUq4UIkK4=

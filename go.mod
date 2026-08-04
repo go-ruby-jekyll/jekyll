@@ -4,7 +4,7 @@ go 1.26.4
 
 require (
 	github.com/go-ruby-kramdown/kramdown v0.0.0-20260717070109-6152f7f5a931
-	github.com/go-ruby-liquid/liquid v0.0.0-20260803123637-f2fd0dc7162b
+	github.com/go-ruby-liquid/liquid v0.0.0-20260804201521-ef124255c935
 	github.com/go-ruby-rouge/rouge v0.0.0-20260717073527-64efd2552805
 	github.com/go-ruby-sass/sass v0.0.0-20260803122427-20e227828c1d
 	gopkg.in/yaml.v3 v3.0.1
