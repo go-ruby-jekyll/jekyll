@@ -121,7 +121,7 @@ The core build pipeline matches Jekyll's behaviour:
 | `{% include %}` referencing a loop variable | residual of the missing tag-registration hook (page/layout-scope includes work). |
 | Array/hash Jekyll filters (`where_exp`, `group_by`) | best-effort; string-valued filters are exact. |
 | Theme gems with a non-standard layout | only the standard `_layouts`/`_includes`/`_sass`/`assets` structure is resolved; a theme that ships its files elsewhere (or via a custom `Jekyll::Theme` subclass) is not. |
-| Liquid `{%- -%}` whitespace-control edge case | go-ruby-liquid collapses one newline around an empty trimmed conditional differently from Ruby Liquid. The only observed effect on a `jekyll new` + minima build is a single insignificant newline in `home.html` (and a trailing blank line) — pages are otherwise byte-identical. |
+| Empty page body newline | go-ruby-kramdown renders an empty Markdown body as `""` where Ruby kramdown yields `"\n"`. On a `jekyll new` + minima build the only observed effect is a single insignificant newline inside `home.html`'s `{{ content }}` slot on the index page — `about` and post pages are byte-identical. (go-ruby-liquid's `{%- -%}` / `{{- -}}` whitespace control is byte-exact against the liquid gem, including minima's skipped-conditional layout shape.) |
 
 ## Tests & coverage
 
@@ -136,8 +136,9 @@ An end-to-end test (`integration_test.go`) additionally builds a real
 `testdata/gemroot/`) and compares every page to Ruby Jekyll 4.4.1 with minima
 2.5.2, jekyll-feed 0.17.0 and jekyll-seo-tag 2.9.0: `feed.xml` and `assets/main.css`
 are byte-identical (feed modulo its site-time `<updated>`; CSS modulo the
-source-map trailer), and the HTML pages are content-identical up to the single
-Liquid whitespace residual noted above.
+source-map trailer), the `about` and post pages are byte-identical, and the
+index page is content-identical up to the single empty-body newline residual
+noted above.
 
 ## License
 
