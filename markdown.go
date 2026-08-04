@@ -19,6 +19,15 @@ import (
 func kramdownOptions(cfg Config) *kramdown.Options {
 	o := kramdown.DefaultOptions()
 	o.HardWrap = false // Jekyll sets kramdown hard_wrap: false
+	// Jekyll owns syntax highlighting itself: convertMarkdown post-processes
+	// kramdown's plain <pre><code> output through go-ruby-rouge (rougeifyCodeBlocks)
+	// to reproduce Rouge 5.0.0's exact wrapper — the version Jekyll 4.4.1 ships,
+	// whose close tag carries no newline (…</code></pre></div></div>). Disabling
+	// kramdown's own built-in Rouge (default since the highlighter was wired in)
+	// keeps that byte-exact path in force; kramdown's built-in wrapper follows the
+	// older Rouge whitespace vendored in its 2.5.2 corpus (…</code></pre>\n</div>),
+	// which must not leak into Jekyll output.
+	o.SyntaxHighlighter = ""
 	if kd, ok := cfg["kramdown"].(map[string]any); ok {
 		if v, ok := kd["auto_ids"].(bool); ok {
 			o.AutoIds = v
