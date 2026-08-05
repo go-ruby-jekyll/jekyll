@@ -315,20 +315,20 @@ func (t seoTag) absoluteURL(path string) string {
 
 func (t seoTag) datePublished() string {
 	if d, ok := t.page["date"]; ok && d != nil {
-		return xmlSchemaDate(d)
+		return xmlSchemaDate(d, siteLocation(t.site))
 	}
 	return ""
 }
 
 func (t seoTag) dateModified() string {
 	if v := subHash(t.page, "seo")["date_modified"]; v != nil {
-		return xmlSchemaDate(v)
+		return xmlSchemaDate(v, siteLocation(t.site))
 	}
 	if v, ok := t.page["last_modified_at"]; ok && v != nil {
-		return xmlSchemaDate(v)
+		return xmlSchemaDate(v, siteLocation(t.site))
 	}
 	if v, ok := t.page["date"]; ok && v != nil {
-		return xmlSchemaDate(v)
+		return xmlSchemaDate(v, siteLocation(t.site))
 	}
 	return ""
 }
