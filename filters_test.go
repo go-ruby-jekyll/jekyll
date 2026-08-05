@@ -95,3 +95,53 @@ func TestToStringSliceAndStripP(t *testing.T) {
 		t.Fatalf("stripP=%q", got)
 	}
 }
+
+// TestTimezone verifies faithful `timezone:` handling: when set, date filters
+// render in that IANA zone with DST honored; when unset, each date keeps its
+// authored offset (no localization to the build host).
+func TestTimezone(t *testing.T) {
+	winter := time.Date(2023, 1, 15, 12, 0, 0, 0, time.UTC) // no DST
+	summer := time.Date(2023, 7, 15, 12, 0, 0, 0, time.UTC) // DST
+	xs := func(cfg Config, in any) string {
+		v, err := jekyllFilters(cfg)["date_to_xmlschema"](in, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return v.(string)
+	}
+	cases := []struct {
+		name string
+		cfg  Config
+		in   any
+		want string
+	}{
+		{"paris-winter", Config{"timezone": "Europe/Paris"}, winter, "2023-01-15T13:00:00+01:00"},
+		{"paris-summer-dst", Config{"timezone": "Europe/Paris"}, summer, "2023-07-15T14:00:00+02:00"},
+		{"ny-winter", Config{"timezone": "America/New_York"}, winter, "2023-01-15T07:00:00-05:00"},
+		{"ny-summer-dst", Config{"timezone": "America/New_York"}, summer, "2023-07-15T08:00:00-04:00"},
+		{"unset-keeps-utc", Config{}, winter, "2023-01-15T12:00:00Z"},
+		{"unset-keeps-offset", Config{}, "2023-01-15T09:30:00+05:00", "2023-01-15T09:30:00+05:00"},
+		{"invalid-zone-falls-back", Config{"timezone": "Not/AZone"}, winter, "2023-01-15T12:00:00Z"},
+		{"zoneless-string-in-zone", Config{"timezone": "Europe/Paris"}, "2023-07-15 00:00:00", "2023-07-15T00:00:00+02:00"},
+		{"zoneless-string-unset-utc", Config{}, "2023-07-15", "2023-07-15T00:00:00Z"},
+	}
+	for _, c := range cases {
+		if got := xs(c.cfg, c.in); got != c.want {
+			t.Errorf("%s: date_to_xmlschema = %q, want %q", c.name, got, c.want)
+		}
+	}
+	// siteLocation: unset -> nil (no conversion); set -> the zone.
+	if siteLocation(Config{}) != nil {
+		t.Error("siteLocation(unset) should be nil")
+	}
+	if loc := siteLocation(Config{"timezone": "Europe/Paris"}); loc == nil || loc.String() != "Europe/Paris" {
+		t.Errorf("siteLocation(Paris) = %v", loc)
+	}
+	// feed xmlSchemaDate honors the same zone (nil = keep offset).
+	if got := xmlSchemaDate(summer, siteLocation(Config{"timezone": "America/New_York"})); got != "2023-07-15T08:00:00-04:00" {
+		t.Errorf("xmlSchemaDate ny-summer = %q", got)
+	}
+	if got := xmlSchemaDate("2023-01-15T09:30:00Z", nil); got != "2023-01-15T09:30:00Z" {
+		t.Errorf("xmlSchemaDate keep-Z = %q", got)
+	}
+}

@@ -158,7 +158,7 @@ func TestFeedHelpers(t *testing.T) {
 		t.Fatalf("absoluteURL absolute passthrough: %q", got)
 	}
 	// xml-schema formatting of a non-date value returns it unchanged.
-	if got := xmlSchemaDate("not-a-date"); got != "not-a-date" {
+	if got := xmlSchemaDate("not-a-date", time.UTC); got != "not-a-date" {
 		t.Fatalf("xmlSchemaDate non-date: %q", got)
 	}
 }

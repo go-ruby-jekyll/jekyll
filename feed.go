@@ -73,7 +73,7 @@ func (s *Site) buildFeed(feedURL string) string {
 		b.WriteString(`hreflang="` + lang + `" `)
 	}
 	b.WriteString("/>")
-	b.WriteString("<updated>" + xmlSchemaDate(s.Time) + "</updated>")
+	b.WriteString("<updated>" + xmlSchemaDate(s.Time, siteLocation(s.Config)) + "</updated>")
 	b.WriteString("<id>" + xmlEscape(s.absoluteURL(feedURL)) + "</id>")
 
 	if title := s.feedTitle(); title != "" {
@@ -144,12 +144,12 @@ func (s *Site) writeFeedEntry(b *strings.Builder, post map[string]any) {
 	url := toS(post["url"])
 	b.WriteString(`<title type="html">` + title + "</title>")
 	b.WriteString(`<link href="` + s.absoluteURL(url) + `" rel="alternate" type="text/html" title="` + title + `" />`)
-	b.WriteString("<published>" + xmlSchemaDate(post["date"]) + "</published>")
+	b.WriteString("<published>" + xmlSchemaDate(post["date"], siteLocation(s.Config)) + "</published>")
 	updated := post["date"]
 	if lm, ok := post["last_modified_at"]; ok && lm != nil {
 		updated = lm
 	}
-	b.WriteString("<updated>" + xmlSchemaDate(updated) + "</updated>")
+	b.WriteString("<updated>" + xmlSchemaDate(updated, siteLocation(s.Config)) + "</updated>")
 	b.WriteString("<id>" + xmlEscape(s.absoluteURL(toS(post["id"]))) + "</id>")
 
 	if !s.feedExcerptOnly(post) {
@@ -297,10 +297,12 @@ func (s *Site) absoluteURL(path string) string {
 	return strings.TrimSuffix(s.Config.str("url"), "/") + rel
 }
 
-// xmlSchemaDate formats a value as an XML-schema (RFC3339) timestamp.
-func xmlSchemaDate(v any) string {
-	if t, ok := toTime(v); ok {
-		return t.Format(time.RFC3339)
+// xmlSchemaDate formats a value as an XML-schema (RFC3339) timestamp in the site
+// timezone loc, matching Jekyll's date_to_xmlschema under an ENV["TZ"] set from
+// site.config["timezone"].
+func xmlSchemaDate(v any, loc *time.Location) string {
+	if t, ok := toTimeIn(v, loc); ok {
+		return inLoc(t, loc).Format(time.RFC3339)
 	}
 	return toS(v)
 }
