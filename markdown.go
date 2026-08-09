@@ -9,8 +9,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/go-ruby-kramdown/kramdown"
-	"github.com/go-ruby-rouge/rouge"
+	"github.com/go-kramdown/kramdown"
+	"github.com/go-rouge/rouge"
 )
 
 // kramdownOptions maps the site configuration onto go-ruby-kramdown options,

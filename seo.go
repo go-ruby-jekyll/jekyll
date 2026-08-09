@@ -12,7 +12,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/go-ruby-kramdown/kramdown"
+	"github.com/go-kramdown/kramdown"
 )
 
 // jekyll-seo-tag (https://github.com/jekyll/jekyll-seo-tag) provides the

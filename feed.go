@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-ruby-kramdown/kramdown"
+	"github.com/go-kramdown/kramdown"
 )
 
 // runGenerators runs the enabled plugin generators after the site has rendered
