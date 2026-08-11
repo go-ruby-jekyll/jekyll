@@ -9,8 +9,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/go-ruby-kramdown/kramdown"
-	"github.com/go-ruby-rouge/rouge"
+	"github.com/go-kramdown/kramdown"
+	"github.com/go-rouge/rouge"
 )
 
 // kramdownOptions maps the site configuration onto go-ruby-kramdown options,
@@ -19,6 +19,11 @@ import (
 func kramdownOptions(cfg Config) *kramdown.Options {
 	o := kramdown.DefaultOptions()
 	o.HardWrap = false // Jekyll sets kramdown hard_wrap: false
+	// Jekyll does not use kramdown's built-in Rouge highlighter; it wraps code
+	// blocks itself (see rougeifyCodeBlocks), whose whitespace differs from the
+	// standalone kramdown gem. Disable the native highlighter so kramdown emits
+	// plain <pre><code class="language-…"> that rougeifyCodeBlocks then rewrites.
+	o.SyntaxHighlighter = ""
 	if kd, ok := cfg["kramdown"].(map[string]any); ok {
 		if v, ok := kd["auto_ids"].(bool); ok {
 			o.AutoIds = v

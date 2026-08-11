@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-ruby-liquid/liquid"
+	"github.com/go-liquid/liquid"
 	"gopkg.in/yaml.v3"
 )
 

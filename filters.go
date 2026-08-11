@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-ruby-kramdown/kramdown"
-	"github.com/go-ruby-liquid/liquid"
+	"github.com/go-kramdown/kramdown"
+	"github.com/go-liquid/liquid"
 )
 
 // jekyllFilters returns the Jekyll-specific Liquid filter vocabulary bound to

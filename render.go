@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/go-ruby-liquid/liquid"
+	"github.com/go-liquid/liquid"
 )
 
 // renderer runs the Liquid pipeline for one site. Because go-ruby-liquid has no
