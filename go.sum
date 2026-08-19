@@ -4,6 +4,8 @@ github.com/go-liquid/liquid v0.1.0 h1:wbuKHqjF1QQjR8Xge2HTCT+59VGIfza9jkrg7lAbwr
 github.com/go-liquid/liquid v0.1.0/go.mod h1:iFhRQrmLiwv4R9E29+Vdiz63wGcPGjrSq6n9ouSSMo0=
 github.com/go-rouge/rouge v0.1.0 h1:Ne+YRqsm1JloOKCYDs63scI0QzPUVw61y+vUn0+P6BY=
 github.com/go-rouge/rouge v0.1.0/go.mod h1:0AXSe8OuYrzYSEMdoXX0jDazGDc/jC2eS9I4y0Q0w9I=
+github.com/go-rouge/rouge v0.2.0 h1:1oF+L8ROB7Ru9W23jr3trBPgcug0Y9FIFayH6T8vS14=
+github.com/go-rouge/rouge v0.2.0/go.mod h1:0AXSe8OuYrzYSEMdoXX0jDazGDc/jC2eS9I4y0Q0w9I=
 github.com/go-ruby-regexp/regexp v0.0.0-20260701043846-fa3d6604e1ee h1:ctauEAdAq129WCrU+dndYcOjNlo1Y94vWNBtgXp1heE=
 github.com/go-ruby-regexp/regexp v0.0.0-20260701043846-fa3d6604e1ee/go.mod h1:+0nK2X+aCPMO91bPMM/DT1OFUIzFQeoTPGkkOR3kd84=
 github.com/go-ruby-sass/sass v0.0.0-20260803122427-20e227828c1d h1:PPBKp9+YtzCYYsQ5p/Vh+ij0nfCqp4negRWoqAVlBv4=
