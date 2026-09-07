@@ -16,12 +16,16 @@ github.com/go-ruby-sass/sass v0.0.0-20260831125404-9d483ad259c8 h1:A+xMSjzK9Hux0
 github.com/go-ruby-sass/sass v0.0.0-20260831125404-9d483ad259c8/go.mod h1:8i2+SYMNQHLoA1QBVCpup9KB8PtNXKmDWAH98fUJ4fI=
 github.com/go-ruby-sass/sass v0.0.0-20260903192745-4f4b075b94ba h1:gFfPi0cMHLcRcCNRgF7BjP/9k8WHCI8eUXpNCNsptCQ=
 github.com/go-ruby-sass/sass v0.0.0-20260903192745-4f4b075b94ba/go.mod h1:HpO1ewERY9jhzOLeI3eQ0nI6KBtQdhtCVnjb2SB5aqE=
+github.com/go-ruby-sass/sass v0.0.0-20260906100410-777830f19847 h1:ELua5/LWhKtr4sCKpwpE9b+M5etlkgBnEPgHyvsJsrg=
+github.com/go-ruby-sass/sass v0.0.0-20260906100410-777830f19847/go.mod h1:x1nYqayL1xpriwIyqXnvfJ5ptOVePxanJXjXFI6Zn/E=
 github.com/go-scss/scss v0.0.0-20260803114742-42d746e6ec68 h1:OmjOHHpNiHAu7EphJL3Xj7l61pvYVGAeNzlbpEl4ym8=
 github.com/go-scss/scss v0.0.0-20260803114742-42d746e6ec68/go.mod h1:TcSRuwTSVas0+vXMRFdq4RiAmlaK+z5FQh1/6+4fWTo=
 github.com/go-scss/scss v0.0.0-20260830080002-964895f14fa4 h1:jARJX5zfIigtBLnr2m63ZlR/fssdCz1q63+nHAJAAkw=
 github.com/go-scss/scss v0.0.0-20260830080002-964895f14fa4/go.mod h1:TcSRuwTSVas0+vXMRFdq4RiAmlaK+z5FQh1/6+4fWTo=
 github.com/go-scss/scss v0.0.0-20260901193330-1ec287aec907 h1:NvD7kwOhnFulnjzxiuDag0+DJlMd9puNd8C6gaJeAA0=
 github.com/go-scss/scss v0.0.0-20260901193330-1ec287aec907/go.mod h1:TcSRuwTSVas0+vXMRFdq4RiAmlaK+z5FQh1/6+4fWTo=
+github.com/go-scss/scss v0.0.0-20260905061546-39932e01faa4 h1:PpCxQnwQfCJXYKj1HdDjECB3u/c/c4wOawMPT5LCFVs=
+github.com/go-scss/scss v0.0.0-20260905061546-39932e01faa4/go.mod h1:TcSRuwTSVas0+vXMRFdq4RiAmlaK+z5FQh1/6+4fWTo=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
