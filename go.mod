@@ -6,7 +6,7 @@ require (
 	github.com/go-kramdown/kramdown v0.1.0
 	github.com/go-liquid/liquid v0.1.0
 	github.com/go-rouge/rouge v0.2.0
-	github.com/go-ruby-sass/sass v0.0.0-20260906100410-777830f19847
+	github.com/go-ruby-sass/sass v0.0.0-20261004225654-93da1ddfb811
 	gopkg.in/yaml.v3 v3.0.1
 )
 
