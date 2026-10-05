@@ -1,6 +1,6 @@
 module github.com/go-ruby-jekyll/jekyll
 
-go 1.26.4
+go 1.27.1
 
 require (
 	github.com/go-kramdown/kramdown v0.1.0
