@@ -3,7 +3,7 @@ module github.com/go-ruby-jekyll/jekyll
 go 1.27.1
 
 require (
-	github.com/go-kramdown/kramdown v0.1.0
+	github.com/go-kramdown/kramdown v0.3.0
 	github.com/go-liquid/liquid v0.1.0
 	github.com/go-rouge/rouge v0.2.0
 	github.com/go-ruby-sass/sass v0.0.0-20260906100410-777830f19847

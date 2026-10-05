@@ -1,5 +1,7 @@
 github.com/go-kramdown/kramdown v0.1.0 h1:59AY0Bul7dq+KwvN0pMR2hvqWsmxvaNlhUjfYAMqTnw=
 github.com/go-kramdown/kramdown v0.1.0/go.mod h1:WHuSDeYlouAhRcB4Evq0TxNFIeGrbgK4fB8egpekvU8=
+github.com/go-kramdown/kramdown v0.3.0 h1:mRkN5TZWyuyqUZlHtef3SPxQ0OdYl1qvJ3hQE0WXUvg=
+github.com/go-kramdown/kramdown v0.3.0/go.mod h1:i692nkkSs6LwLeOfrBDe34U+C1wNvwHZwOucDktNtzk=
 github.com/go-liquid/liquid v0.1.0 h1:wbuKHqjF1QQjR8Xge2HTCT+59VGIfza9jkrg7lAbwrY=
 github.com/go-liquid/liquid v0.1.0/go.mod h1:iFhRQrmLiwv4R9E29+Vdiz63wGcPGjrSq6n9ouSSMo0=
 github.com/go-rouge/rouge v0.2.0 h1:1oF+L8ROB7Ru9W23jr3trBPgcug0Y9FIFayH6T8vS14=
