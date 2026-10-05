@@ -2,10 +2,16 @@ github.com/go-kramdown/kramdown v0.1.0 h1:59AY0Bul7dq+KwvN0pMR2hvqWsmxvaNlhUjfYA
 github.com/go-kramdown/kramdown v0.1.0/go.mod h1:WHuSDeYlouAhRcB4Evq0TxNFIeGrbgK4fB8egpekvU8=
 github.com/go-liquid/liquid v0.1.0 h1:wbuKHqjF1QQjR8Xge2HTCT+59VGIfza9jkrg7lAbwrY=
 github.com/go-liquid/liquid v0.1.0/go.mod h1:iFhRQrmLiwv4R9E29+Vdiz63wGcPGjrSq6n9ouSSMo0=
+github.com/go-regexp/engine v0.1.3 h1:0U5DrrBEYjNX/f0yFESpQDWmJOtXmmZqluNAUBXjfxY=
+github.com/go-regexp/engine v0.1.3/go.mod h1:8rju5lq5OkskQh9+m+FjBP6965giMPUdIOdrvFrbqn4=
 github.com/go-rouge/rouge v0.2.0 h1:1oF+L8ROB7Ru9W23jr3trBPgcug0Y9FIFayH6T8vS14=
 github.com/go-rouge/rouge v0.2.0/go.mod h1:0AXSe8OuYrzYSEMdoXX0jDazGDc/jC2eS9I4y0Q0w9I=
+github.com/go-rouge/rouge v0.4.0 h1:f/5EVTEwiEnBOeyAtkV8r5KopdIRAsRoA7Kzi/cyh2Y=
+github.com/go-rouge/rouge v0.4.0/go.mod h1:V4Xlyl1EDqEfrzloW9y6X0xpv/WvCvTiOWNIcByw2Y8=
 github.com/go-ruby-regexp/regexp v0.0.0-20260701043846-fa3d6604e1ee h1:ctauEAdAq129WCrU+dndYcOjNlo1Y94vWNBtgXp1heE=
 github.com/go-ruby-regexp/regexp v0.0.0-20260701043846-fa3d6604e1ee/go.mod h1:+0nK2X+aCPMO91bPMM/DT1OFUIzFQeoTPGkkOR3kd84=
+github.com/go-ruby-regexp/regexp v0.0.0-20260927145504-6cbb63926eb2 h1:pNvJf0zgzg0rTEq1fToFa5fnzK13nIble80caTmdG3g=
+github.com/go-ruby-regexp/regexp v0.0.0-20260927145504-6cbb63926eb2/go.mod h1:I3i2r1AXulgMBt/KiWBcxjnoNsB09ZFKkj2Vb5Mhzuw=
 github.com/go-ruby-sass/sass v0.0.0-20260906100410-777830f19847 h1:ELua5/LWhKtr4sCKpwpE9b+M5etlkgBnEPgHyvsJsrg=
 github.com/go-ruby-sass/sass v0.0.0-20260906100410-777830f19847/go.mod h1:x1nYqayL1xpriwIyqXnvfJ5ptOVePxanJXjXFI6Zn/E=
 github.com/go-scss/scss v0.0.0-20260905061546-39932e01faa4 h1:PpCxQnwQfCJXYKj1HdDjECB3u/c/c4wOawMPT5LCFVs=
